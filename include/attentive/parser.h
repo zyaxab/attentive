@@ -45,6 +45,9 @@ enum at_response_type {
 /** @internal */
 #define _AT_RESPONSE_TYPE_MASK 0xff
 
+/** Per-character handler. */
+typedef char (*at_character_handler_t)(char ch, char *line, size_t len, void *priv);
+
 /** Line scanner. Should return one of the AT_RESPONSE_* values if the line is
  *  identified or AT_RESPONSE_UNKNOWN to fall back to the default scanner. */
 typedef enum at_response_type (*at_line_scanner_t)(const char *line, size_t len, void *priv);
@@ -62,6 +65,7 @@ enum at_parser_state {
 
 struct at_parser {
     const struct at_parser_callbacks *cbs;
+    at_character_handler_t character_handler;
     void *priv;
 
     enum at_parser_state state;
@@ -112,6 +116,14 @@ void at_parser_init(struct at_parser *parser, const struct at_parser_callbacks *
  * @param parser Parser instance.
  */
 void at_parser_reset(struct at_parser *parser);
+
+/**
+ * Make the parser handle each character received.
+ *
+ * @param parser Parser instance.
+ * @param handler Character handler.
+ */
+void at_parser_set_character_handler(struct at_parser *parser, at_character_handler_t handler);
 
 /**
  * Make the parser expect a dataprompt for the next command.
