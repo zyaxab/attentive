@@ -52,6 +52,29 @@ typedef enum at_response_type (*at_line_scanner_t)(const char *line, size_t len,
 /** Response handler. */
 typedef void (*at_response_handler_t)(const char *line, size_t len, void *priv);
 
+enum at_parser_state {
+    STATE_IDLE,
+    STATE_READLINE,
+    STATE_DATAPROMPT,
+    STATE_RAWDATA,
+    STATE_HEXDATA,
+};
+
+struct at_parser {
+    const struct at_parser_callbacks *cbs;
+    void *priv;
+
+    enum at_parser_state state;
+    bool expect_dataprompt;
+    size_t data_left;
+    int nibble;
+
+    char *buf;
+    size_t buf_used;
+    size_t buf_size;
+    size_t buf_current;
+};
+
 struct at_parser_callbacks {
     at_line_scanner_t scan_line;
     at_response_handler_t handle_response;

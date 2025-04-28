@@ -11,28 +11,6 @@
 #include <stdio.h>
 #include <string.h>
 
-enum at_parser_state {
-    STATE_IDLE,
-    STATE_READLINE,
-    STATE_DATAPROMPT,
-    STATE_RAWDATA,
-    STATE_HEXDATA,
-};
-
-struct at_parser {
-    const struct at_parser_callbacks *cbs;
-    void *priv;
-
-    enum at_parser_state state;
-    bool expect_dataprompt;
-    size_t data_left;
-    int nibble;
-
-    char *buf;
-    size_t buf_used;
-    size_t buf_size;
-    size_t buf_current;
-};
 
 static const char *const final_ok_responses[] = {
     "OK",
