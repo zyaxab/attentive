@@ -6,13 +6,12 @@
  * published by Sam Hocevar. See the COPYING file for more details.
  */
 
+#include <attentive/modem/common.h>
 #include <attentive/cellular.h>
 
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
-
-#include "common.h"
 
 /*
  * SIM800 probably holds the highly esteemed position of the world's worst
@@ -487,10 +486,10 @@ static ssize_t sim800_socket_recv(struct cellular *modem, int connid, void *buff
 
         /* Find the header line. */
         int requested, confirmed;
-        // TODO: 
+        // TODO:
         // 1. connid is not checked
         // 2. there is possible a bug here. if not all data are ready (confirmed < requested)
-        // then wierd things can happen. see memcpy 
+        // then wierd things can happen. see memcpy
         // requested should be equal to chunk
         // confirmed is that what can be read
         at_simple_scanf(response, "+CIPRXGET: 2,%*d,%d,%d", &requested, &confirmed);
@@ -501,7 +500,7 @@ static ssize_t sim800_socket_recv(struct cellular *modem, int connid, void *buff
             break;
 
         /* Locate the payload. */
-        /* TODO: what if no \n is in input stream? 
+        /* TODO: what if no \n is in input stream?
          * should use strnchr at least */
         const char *data = strchr(response, '\n');
         if (data == NULL) {

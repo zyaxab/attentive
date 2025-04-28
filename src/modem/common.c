@@ -6,12 +6,11 @@
  * published by Sam Hocevar. See the COPYING file for more details.
  */
 
+#include <attentive/modem/common.h>
 #include <attentive/cellular.h>
 
 #include <stdio.h>
 #include <string.h>
-
-#include "common.h"
 
 
 #define PDP_RETRY_THRESHOLD_INITIAL     3
