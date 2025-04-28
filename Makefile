@@ -23,7 +23,7 @@ clean:
 PARSER = include/attentive/parser.h
 AT = include/attentive/at.h include/attentive/at-unix.h $(PARSER)
 CELLULAR = include/attentive/cellular.h $(AT)
-MODEM = src/modem/common.h $(CELLULAR)
+MODEM = include/attentive/modem/common.h $(CELLULAR)
 
 src/parser.o: src/parser.c $(PARSER)
 src/at-unix.o: src/at-unix.c $(AT)

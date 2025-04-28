@@ -6,14 +6,13 @@
  * published by Sam Hocevar. See the COPYING file for more details.
  */
 
+#include <attentive/modem/common.h>
 #include <attentive/cellular.h>
 
 #include <inttypes.h>
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
-
-#include "common.h"
 
 /*
  * SIM800 probably holds the highly esteemed position of the world's worst
