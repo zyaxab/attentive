@@ -9,10 +9,19 @@
 #ifndef ATTENTIVE_AT_UNIX_H
 #define ATTENTIVE_AT_UNIX_H
 
+#if defined(__cplusplus)
+extern "C"
+{
+#endif
+
 #include <time.h>
 #include <stdint.h>
 
 time_t at_timegm(const struct tm *tm);
+
+#if defined(__cplusplus)
+}
+#endif
 
 #endif
 
