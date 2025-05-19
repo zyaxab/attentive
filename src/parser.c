@@ -292,6 +292,13 @@ void at_parser_feed(struct at_parser *parser, const void *data, size_t len)
                     parser->data_left--;
                 }
 
+                /* Handle a single character. */
+                if (parser->character_handler) {
+                    ch = parser->character_handler(ch, parser->buf + parser->buf_current,
+                                                    parser->buf_used - parser->buf_current,
+                                                    parser->priv);
+                }
+
                 if (parser->data_left == 0) {
                     parser_include_line(parser);
                     parser->state = STATE_READLINE;
@@ -311,6 +318,13 @@ void at_parser_feed(struct at_parser *parser, const void *data, size_t len)
                             parser->data_left--;
                         }
                     }
+                }
+
+                /* Handle a single character. */
+                if (parser->character_handler) {
+                    ch = parser->character_handler(ch, parser->buf + parser->buf_current,
+                                                    parser->buf_used - parser->buf_current,
+                                                    parser->priv);
                 }
 
                 if (parser->data_left == 0) {
