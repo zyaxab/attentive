@@ -71,6 +71,12 @@ void at_parser_reset(struct at_parser *parser)
     parser->buf_used = 0;
     parser->buf_current = 0;
     parser->data_left = 0;
+    parser->character_handler = NULL;
+}
+
+void at_parser_set_character_handler(struct at_parser *parser, at_character_handler_t handler)
+{
+    parser->character_handler = handler;
 }
 
 void at_parser_expect_dataprompt(struct at_parser *parser)
@@ -262,6 +268,13 @@ void at_parser_feed(struct at_parser *parser, const void *data, size_t len)
                     parser_append(parser, ch);
                 }
 
+                /* Handle a single character. */
+                if (parser->character_handler) {
+                    ch = parser->character_handler(ch, parser->buf + parser->buf_current,
+                                                    parser->buf_used - parser->buf_current,
+                                                    parser->priv);
+                }
+
                 /* Handle full lines. */
                 if ((ch == '\n') ||
                     (parser->state == STATE_DATAPROMPT &&
@@ -277,6 +290,13 @@ void at_parser_feed(struct at_parser *parser, const void *data, size_t len)
                 if (parser->data_left > 0) {
                     parser_append(parser, ch);
                     parser->data_left--;
+                }
+
+                /* Handle a single character. */
+                if (parser->character_handler) {
+                    ch = parser->character_handler(ch, parser->buf + parser->buf_current,
+                                                    parser->buf_used - parser->buf_current,
+                                                    parser->priv);
                 }
 
                 if (parser->data_left == 0) {
@@ -298,6 +318,13 @@ void at_parser_feed(struct at_parser *parser, const void *data, size_t len)
                             parser->data_left--;
                         }
                     }
+                }
+
+                /* Handle a single character. */
+                if (parser->character_handler) {
+                    ch = parser->character_handler(ch, parser->buf + parser->buf_current,
+                                                    parser->buf_used - parser->buf_current,
+                                                    parser->priv);
                 }
 
                 if (parser->data_left == 0) {
