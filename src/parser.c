@@ -263,16 +263,16 @@ void at_parser_feed(struct at_parser *parser, const void *data, size_t len)
             case STATE_READLINE:
             case STATE_DATAPROMPT:
             {
-                if ((ch != '\r') && (ch != '\n')) {
-                    /* Append the character if it's not a newline. */
-                    parser_append(parser, ch);
-                }
-
                 /* Handle a single character. */
                 if (parser->character_handler) {
                     ch = parser->character_handler(ch, parser->buf + parser->buf_current,
                                                     parser->buf_used - parser->buf_current,
                                                     parser->priv);
+                }
+
+                if ((ch != '\r') && (ch != '\n')) {
+                    /* Append the character if it's not a newline. */
+                    parser_append(parser, ch);
                 }
 
                 /* Handle full lines. */
