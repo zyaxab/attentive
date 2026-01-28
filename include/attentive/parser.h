@@ -61,6 +61,7 @@ enum at_parser_state {
     STATE_DATAPROMPT,
     STATE_RAWDATA,
     STATE_HEXDATA,
+    STATE_RESPONSE_PENDING,
 };
 
 struct at_parser {
@@ -168,6 +169,18 @@ void at_parser_free(struct at_parser *parser);
  * @returns True if found, false otherwise.
  */
 bool at_prefix_in_table(const char *line, const char *const table[]);
+
+/**
+ * Release a pending response buffer.
+ *
+ * After a command completes, the parser enters STATE_RESPONSE_PENDING to keep
+ * the response buffer stable while the caller processes it. URCs received
+ * during this time are handled normally using buffer space after the response.
+ * Call this function when done processing the response to reset the parser.
+ *
+ * @param parser Parser instance.
+ */
+void at_parser_release_response(struct at_parser *parser);
 
 #if defined(__cplusplus)
 }
