@@ -304,11 +304,48 @@ START_TEST(test_parser_dataprompt)
 }
 END_TEST
 
+static const char *response_buf_ptr;
+
+static void capture_response(const char *buf, size_t len, void *priv)
+{
+    (void) priv;
+    (void) len;
+    response_buf_ptr = buf;
+}
+
+static void ignore_urc(const char *buf, size_t len, void *priv)
+{
+    (void) priv;
+    (void) buf;
+    (void) len;
+}
+
+START_TEST(test_parser_urc_does_not_overwrite_response)
+{
+    printf(":: test_parser_urc_does_not_overwrite_response\n");
+
+    struct at_parser_callbacks cbs = {
+        .handle_response = capture_response,
+        .handle_urc = ignore_urc,
+    };
+    struct at_parser *parser = at_parser_alloc(&cbs, 256, NULL);
+
+    at_parser_await_response(parser);
+    at_parser_feed(parser, STR_LEN("data\r\nOK\r\n"));
+    ck_assert_str_eq(response_buf_ptr, "data");
+
+    at_parser_feed(parser, STR_LEN("RING\r\n"));
+    ck_assert_str_eq(response_buf_ptr, "data");  /* Must not be overwritten */
+
+    at_parser_free(parser);
+}
+END_TEST
+
 Suite *attentive_suite(void)
 {
     Suite *s = suite_create("attentive");
     TCase *tc;
-  
+
     tc = tcase_create("parser");
     tcase_add_test(tc, test_parser_alloc);
     tcase_add_test(tc, test_parser_response);
@@ -318,6 +355,7 @@ Suite *attentive_suite(void)
     tcase_add_test(tc, test_parser_rawdata);
     tcase_add_test(tc, test_parser_hexdata);
     tcase_add_test(tc, test_parser_dataprompt);
+    tcase_add_test(tc, test_parser_urc_does_not_overwrite_response);
     suite_add_tcase(s, tc);
 
     return s;
