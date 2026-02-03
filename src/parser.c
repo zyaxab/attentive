@@ -86,17 +86,14 @@ void at_parser_expect_dataprompt(struct at_parser *parser)
 
 void at_parser_await_response(struct at_parser *parser)
 {
-    /* Release any pending response before starting a new command.
-     * Preserve expect_dataprompt as it may have been set by the caller
-     * before this function was invoked. */
-    if (parser->state == STATE_RESPONSE_PENDING)
-    {
-        bool expect_dataprompt = parser->expect_dataprompt;
-        at_parser_reset(parser);
-        parser->expect_dataprompt = expect_dataprompt;
-    }
+    /* Preserve expect_dataprompt as it may have been set before this call. */
+    bool expect_dataprompt = parser->expect_dataprompt;
 
-    parser->state = (parser->expect_dataprompt ? STATE_DATAPROMPT : STATE_READLINE);
+    /* Release any pending response before starting a new command. */
+    at_parser_release_response(parser);
+
+    parser->expect_dataprompt = expect_dataprompt;
+    parser->state = (expect_dataprompt ? STATE_DATAPROMPT : STATE_READLINE);
 }
 
 bool at_prefix_in_table(const char *line, const char *const table[])
