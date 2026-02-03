@@ -345,7 +345,13 @@ void at_parser_release_response(struct at_parser *parser)
 {
     if (parser->state == STATE_RESPONSE_PENDING)
     {
+        /* Move any pending data to the start of the buffer. */
+        size_t pending = parser->buf_used - parser->buf_current;
+        if (pending > 0)
+            memmove(parser->buf, parser->buf + parser->buf_current, pending);
+
         at_parser_reset(parser);
+        parser->buf_used = pending;
     }
 }
 
