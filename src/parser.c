@@ -223,6 +223,7 @@ static void parser_handle_line(struct at_parser *parser)
             parser->buf_current = parser->buf_used + 1;
             parser->buf_used = parser->buf_current;
             parser->state = STATE_RESPONSE_PENDING;
+            parser->expect_dataprompt = false;
         }
         break;
 
