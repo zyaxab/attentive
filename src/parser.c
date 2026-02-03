@@ -86,7 +86,14 @@ void at_parser_expect_dataprompt(struct at_parser *parser)
 
 void at_parser_await_response(struct at_parser *parser)
 {
-    parser->state = (parser->expect_dataprompt ? STATE_DATAPROMPT : STATE_READLINE);
+    /* Preserve expect_dataprompt as it may have been set before this call. */
+    bool expect_dataprompt = parser->expect_dataprompt;
+
+    /* Release any pending response before starting a new command. */
+    at_parser_release_response(parser);
+
+    parser->expect_dataprompt = expect_dataprompt;
+    parser->state = (expect_dataprompt ? STATE_DATAPROMPT : STATE_READLINE);
 }
 
 bool at_prefix_in_table(const char *line, const char *const table[])
@@ -176,7 +183,8 @@ static void parser_handle_line(struct at_parser *parser)
         type = generic_line_scanner(line, len, parser);
 
     /* Expected URCs and all unexpected lines are sent to URC handler. */
-    if (type == AT_RESPONSE_URC || parser->state == STATE_IDLE)
+    if (type == AT_RESPONSE_URC || parser->state == STATE_IDLE ||
+        parser->state == STATE_RESPONSE_PENDING)
     {
         /* Fire the callback on the URC line. */
         parser->cbs->handle_urc(parser->buf + parser->buf_current,
@@ -207,8 +215,12 @@ static void parser_handle_line(struct at_parser *parser)
             parser_finalize(parser);
             parser->cbs->handle_response(parser->buf, parser->buf_used, parser->priv);
 
-            /* Go back to idle state. */
-            at_parser_reset(parser);
+            /* Enter pending state - response buffer remains stable until released.
+             * URCs will use buffer space after the response. */
+            parser->buf_current = parser->buf_used + 1;
+            parser->buf_used = parser->buf_current;
+            parser->state = STATE_RESPONSE_PENDING;
+            parser->expect_dataprompt = false;
         }
         break;
 
@@ -259,6 +271,7 @@ void at_parser_feed(struct at_parser *parser, const void *data, size_t len)
 
         switch (parser->state)
         {
+            case STATE_RESPONSE_PENDING:
             case STATE_IDLE:
             case STATE_READLINE:
             case STATE_DATAPROMPT:
@@ -326,6 +339,20 @@ void at_parser_free(struct at_parser *parser)
 {
     free(parser->buf);
     free(parser);
+}
+
+void at_parser_release_response(struct at_parser *parser)
+{
+    if (parser->state == STATE_RESPONSE_PENDING)
+    {
+        /* Move any pending data to the start of the buffer. */
+        size_t pending = parser->buf_used - parser->buf_current;
+        if (pending > 0)
+            memmove(parser->buf, parser->buf + parser->buf_current, pending);
+
+        at_parser_reset(parser);
+        parser->buf_used = pending;
+    }
 }
 
 /* vim: set ts=4 sw=4 et: */
