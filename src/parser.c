@@ -86,13 +86,15 @@ void at_parser_expect_dataprompt(struct at_parser *parser)
 
 void at_parser_await_response(struct at_parser *parser)
 {
-    /* Preserve expect_dataprompt as it may have been set before this call. */
+    /* Preserve fields that may have been set before this call. */
     bool expect_dataprompt = parser->expect_dataprompt;
+    at_character_handler_t character_handler = parser->character_handler;
 
     /* Release any pending response before starting a new command. */
     at_parser_release_response(parser);
 
     parser->expect_dataprompt = expect_dataprompt;
+    parser->character_handler = character_handler;
     parser->state = (expect_dataprompt ? STATE_DATAPROMPT : STATE_READLINE);
 }
 
