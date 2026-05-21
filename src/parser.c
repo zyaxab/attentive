@@ -200,12 +200,12 @@ static void parser_handle_line(struct at_parser *parser)
     }
 
     /* Accumulate everything that's not a final OK. */
-    if (type != AT_RESPONSE_FINAL_OK) {
-        /* Include the line in the buffer. */
-        parser_include_line(parser);
-    } else {
+    if ((type == AT_RESPONSE_FINAL_OK) || (type == AT_RESPONSE_INTERMEDIATE_DISCARDED)) {
         /* Discard the line from the buffer. */
         parser_discard_line(parser);
+    } else {
+        /* Include the line in the buffer. */
+        parser_include_line(parser);
     }
 
     /* Act on the response type. */
