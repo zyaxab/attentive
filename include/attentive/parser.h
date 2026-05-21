@@ -25,14 +25,15 @@ extern "C" {
  * and 3GPP TS 27.007 for the vocabulary.
  */
 enum at_response_type {
-    AT_RESPONSE_UNEXPECTED = -1,    /**< Unexpected line; usually an unhandled URC. */
-    AT_RESPONSE_UNKNOWN = 0,        /**< Pass the response to next parser in chain. */
-    AT_RESPONSE_INTERMEDIATE,       /**< Intermediate response. Stored. */
-    AT_RESPONSE_FINAL_OK,           /**< Final response. NOT stored. */
-    AT_RESPONSE_FINAL,              /**< Final response. Stored. */
-    AT_RESPONSE_URC,                /**< Unsolicited Result Code. Passed to URC handler. */
-    _AT_RESPONSE_RAWDATA_FOLLOWS,   /**< @internal (see AT_RESPONSE_RAWDATA_FOLLOWS) */
-    _AT_RESPONSE_HEXDATA_FOLLOWS,   /**< @internal (see AT_RESPONSE_HEXDATA_FOLLOWS) */
+    AT_RESPONSE_UNEXPECTED = -1,        /**< Unexpected line; usually an unhandled URC. */
+    AT_RESPONSE_UNKNOWN = 0,            /**< Pass the response to next parser in chain. */
+    AT_RESPONSE_INTERMEDIATE,           /**< Intermediate response. Stored. */
+    AT_RESPONSE_INTERMEDIATE_DISCARDED, /**< Intermediate response. NOT Stored */
+    AT_RESPONSE_FINAL_OK,               /**< Final response. NOT stored. */
+    AT_RESPONSE_FINAL,                  /**< Final response. Stored. */
+    AT_RESPONSE_URC,                    /**< Unsolicited Result Code. Passed to URC handler. */
+    _AT_RESPONSE_RAWDATA_FOLLOWS,       /**< @internal (see AT_RESPONSE_RAWDATA_FOLLOWS) */
+    _AT_RESPONSE_HEXDATA_FOLLOWS,       /**< @internal (see AT_RESPONSE_HEXDATA_FOLLOWS) */
 
     _AT_RESPONSE_ENUM_SIZE_SHOULD_BE_INT32 = INT32_MAX
 };
